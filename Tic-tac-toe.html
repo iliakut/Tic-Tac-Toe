@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<!--suppress ALL -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tic-tac-toe</title>
+    <style>
+        body {
+            background: #e6ded4;
+            font-family: CURSIVE;
+        }
+        table {
+            width: 30%;
+            margin: auto;
+        }
+        td {
+            width: 33.33%;
+            position: relative;
+        }
+        td:after {
+            content: '';
+            display: block;
+            margin-top: 100%;
+        }
+        td .content {
+            position: absolute;
+            top: 1px;
+            bottom: 1px;
+            left: 1px;
+            right: 1px;
+            background: #e3c3d4;
+            border-radius: 4px;
+        }
+        .game-container {
+            margin: 10%;
+        }
+        p {
+            margin-left: 35.5%;
+            color: #4e4051;
+        }
+        h1 {
+            color: #4e4051;
+        }
+        .whoFirst {
+            display: inline;
+        }
+        form {
+            margin-left: 35.5%;
+            display: inline;
+            margin: 5px;
+        }
+        h1 {
+            text-align: center;
+        }
+        div.content p {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin: 0 -50% 0 0;
+            transform: translate(-50%, -50%);
+            font-size: 350%;
+            font-family: "COMIC SANS MS";
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            -o-user-select: none;
+            user-select: none;
+            color-text: #4e4051;
+        }
+        nav {
+            margin: 10px;
+        }
+        select {
+            padding: 2px 2px;
+            border: none;
+            border-radius: 4px;
+            background-color: #968089;
+            font-family: CURSIVE;
+        }
+        .flat2 {
+            padding: 7px 7px;
+            border: none;
+            border-radius: 4px;
+            color: #000000;
+            background-color: #968089;
+            text-align: center;
+            font-family: CURSIVE;
+            margin: 0 auto;
+            -webkit-transition:border .25s linear, color .25s linear,background-color .25s linear;
+            transition:border .25s linear, color .25s linear,background-color .25s linear;
+            -webkit-font-smoothing: subpixel-antialiased;
+            text-align: center;
+            cursor: pointer;
+            -webkit-user-select: none;
+
+        }
+
+        .flat2:hover {
+            color: #000000;
+            background-color: #d6d6d5;
+            border: none;
+        }
+
+        .flat2:active {
+            color: #000000;
+            background-color: #968089;
+            border: none;
+        }
+        .text-center {
+            text-align: center;
+            margin: 10px;
+        }
+        textarea {
+            margin-left: 35.5%;
+            margin-bottom: 7%;
+            font-family: CURSIVE;
+            width: 28.5%;
+            position: relative;
+            background: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Tic-tac-toe</h1>
+</header>
+<nav>
+    <p class="whoFirst">
+        The first player is
+    </p>
+    <form id="playerSelect">
+        <select id="player" onchange="changeFirstPlayer()">
+            <option value="0">User</option>
+            <option value="1">Computer</option>
+        </select>
+    </form>
+</nav>
+<main>
+            <table>
+                <tr>
+                    <td>
+                        <div class="content" onclick="nextStep(0)" id="0"><p></p></div>
+                    </td>
+                    <td>
+                        <div class="content" onclick="nextStep(1)" id="1"><p></p></div>
+                    </td>
+                    <td>
+                        <div class="content" onclick="nextStep(2)" id="2"><p></p></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="content" onclick="nextStep(3)" id="3"><p></p></div>
+                    </td>
+                    <td>
+                        <div class="content" onclick="nextStep(4)" id="4"><p></p></div>
+                    </td>
+                    <td>
+                        <div class="content" onclick="nextStep(5)" id="5"><p></p></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="content" onclick="nextStep(6)" id="6"><p></p></div>
+                    </td>
+                    <td>
+                        <div class="content" onclick="nextStep(7)" id="7"><p></p></div>
+                    </td>
+                    <td>
+                        <div class="content" onclick="nextStep(8)" id="8"><p></p></div>
+                    </td>
+                </tr>
+            </table>
+    <div class="text-center">
+        <button type="button" class="flat2" onclick="restartGame()">Restart game</button>
+    </div>
+
+</main>
+<div>
+        <p id="score">
+            Score: user - <b>0</b>, computer - <b>0</b>
+        </p>
+        <p>
+        History of the game
+        </p>
+        <textarea readonly rows="7" id="scoreHistory">   User - Computer
+        </textarea>
+</div>
+
+<script type="text/javascript">
+    /*
+        this is a Tic-tac-toe game
+
+    the code was tested in Chrome V70 (mainly) including Android version, FF V63, Edge V42, IE V11
+
+    the game supports:
+    1. changing first player
+    2. history of the game
+    3. current count
+
+    information about game:
+    first player is always X, therefore the first player (user or computer) playe by X
+    history shows up to update the page, after update all counts resets
+    the computer logic in game based on random numbers, therefore it is siple to win
+    there are some ways to improve it, but this code is for quality, not for strong logic
+
+    about code:
+    essentially didn't use any library. As said your HR "only JS".
+    I didn't assign high priority on CSS (used just for better look), prefer libs.
+     */
+
+    // variables
+    let firstPlayerComputer = 0; // the First player is User dy Default
+    let allCellsArray = [""]; // the array that repeats game cells value
+    let gameFinished = 0; // the tag - game finished
+    let scoreCount = {
+    	user: 0,
+    	computer: 0
+    }; // obj to save players count
+
+    // functions to rule cells
+    // function to set cell value (text of the element of the DOM)
+	function setCellValue(id, value) {
+		document.getElementById(id + "").getElementsByTagName("p")[0].innerText = value;
+	}
+	// function to get cell value (text of the element of the DOM)
+	function getCellValue(id) {
+		return document.getElementById(id + "").getElementsByTagName("p")[0].innerText;
+	}
+	// function to clear all cells (text of the elements) and clear allCellsArray
+	function resetAllCells() {
+		for (let cell = 0; cell <= 8; cell++) {
+			setCellValue(cell, "");
+		}
+		allCellsArray = [""]; // simple purge of the array
+	}
+
+    // functions to rule the game
+    // function to chage score of the computer and user on the DOM
+    function changeScore() {
+        let userScore = document.getElementById("score").getElementsByTagName("b")[0]; // get DOM element
+        let computerScore = document.getElementById("score").getElementsByTagName("b")[1];
+
+        userScore.innerText = scoreCount.user; // set text of the DOM element
+        computerScore.innerText = scoreCount.computer;
+    }
+    // function to change score history
+    function changeScoreHistory() {
+        let scoreArea = document.getElementById("scoreHistory"); // get DOM element which show game history
+        if (scoreCount.user < 10) { // if score of the user less than 10
+			scoreArea.value += " " + scoreCount.user + " - " + scoreCount.computer + "\n \t";
+        }
+        else { // if score of user more than 10 change writable string
+			scoreArea.value += scoreCount.user + " - " + scoreCount.computer + "\n \t";
+        }
+    }
+    // function to change fisrt player and restart the game
+	function changeFirstPlayer() {
+		resetAllCells(); // if function is called, purge all cells
+		gameFinished = 0; // set tag to 0
+		firstPlayerComputer = document.forms["playerSelect"].elements.player.selectedIndex; // read the value of the value of the form
+		if (firstPlayerComputer === 1) {
+			firstCumputerStep(); // if computer is the firsrt let its make a step
+		}
+		setResetWinColour(); //if first player if changed reset color of the cells (delete win line)
+	}
+	//function to check if the symbol "X" or "O" wins and add points to player (user or computer)
+	function checkWin(symbol, player) {
+    	// check all conditions to win
+        // if any condition is true variable winCondition sets to TRUE
+		let winCondition =
+			(allCellsArray[0] === symbol && allCellsArray[1] === symbol && allCellsArray[2] === symbol) ||
+			(allCellsArray[3] === symbol && allCellsArray[4] === symbol && allCellsArray[5] === symbol) ||
+			(allCellsArray[6] === symbol && allCellsArray[7] === symbol && allCellsArray[8] === symbol) ||
+			(allCellsArray[0] === symbol && allCellsArray[3] === symbol && allCellsArray[6] === symbol) ||
+			(allCellsArray[1] === symbol && allCellsArray[4] === symbol && allCellsArray[7] === symbol) ||
+			(allCellsArray[2] === symbol && allCellsArray[5] === symbol && allCellsArray[8] === symbol) ||
+			(allCellsArray[0] === symbol && allCellsArray[4] === symbol && allCellsArray[8] === symbol) ||
+			(allCellsArray[2] === symbol && allCellsArray[4] === symbol && allCellsArray[6] === symbol);
+
+		if (winCondition) { // if true
+			alert(symbol + " wins!"); // show message about "X" or "O" win
+			gameFinished = 1; // set tag
+			scoreCount[player]++; // add point to player (user or computer)
+			changeScore(); // update score on the Page
+			changeScoreHistory(); // update score history on the Page
+			setResetWinColour(symbol); // set color of the cells (set win line)
+		}
+	}
+    // function to check if it is the las step
+	function isTheLastStep () {
+		return (allCellsArray.indexOf("") === -1);
+	}
+	// function to check if it is the draw (equality, 1 - 1 score)
+	function checkDraw() {
+		if (allCellsArray.indexOf("") === -1) {
+			alert("A draw!"); // show message
+			gameFinished = 1; // set tag
+			changeScoreHistory(); // update score history
+        }
+	}
+    // function which defines restartGame button
+	function restartGame() {
+		resetAllCells(); // purge all cells
+		if (firstPlayerComputer) { // if first player is computer let its make a step
+			firstCumputerStep();
+		}
+		gameFinished = 0; // reset tag
+		setResetWinColour(); // reset win color (win Line)
+	}
+
+    // functions to define steps of the game
+    // computer step
+	function nextComputerStep(computerSymb) {
+		let computerStep = getRandomStepComputer(); // get rundom step
+		setCellValue(computerStep, computerSymb); // make a step (write text to DOM elemens)
+		fillCellsArray(); // update cells Array
+	}
+	// user step
+	function nextUserStep(id, userSymb) { // function gets id of the cell and user's Symbol (X or O)
+		setCellValue(id, userSymb); // write text to the DOM element
+		fillCellsArray(); // update array
+	}
+	// function generates computer steps (numbers)
+	function getRandomStepComputer() {
+		let stepId = randomInteger(0, 8); // get random number from 0 to 8
+		let currentCell = getCellValue(stepId);
+		// check if current cell is not empty
+		if (currentCell !== "") {
+			// if current cell is not empty puts step next to it (if it is empty) and so on
+			for (let i = 0; i <= 8; i++) {
+				currentCell = getCellValue(i)
+				if (currentCell !== "") {
+					continue;
+				}
+				return i;
+			}
+		}
+		return stepId;
+	}
+	// if the first player is a computer lets computer make a step
+	function firstCumputerStep() {
+		let computerStep = getRandomStepComputer(); // get random step
+		setCellValue(computerStep, "X"); // if the computer is the first player its plays as "X"
+		fillCellsArray(); // uodate array
+	}
+
+    // additional functions
+    // function to update cellsArray
+	function fillCellsArray() {
+    	// get all cells (DOM elements) value and put them to an Array
+		for (let cell = 0; cell <= 8; cell++) {
+			let currentCellVal = document.getElementById(cell + "").getElementsByTagName("p")[0].innerText;
+			allCellsArray[cell] = currentCellVal;
+		}
+	}
+	// generate random integer from min to max
+	function randomInteger(min, max) {
+		let rand = min + Math.random() * (max + 1 - min);
+		rand = Math.floor(rand);
+		return rand;
+	}
+	// function ro set or reset win Line
+	function setResetWinColour(symbol) {
+    	// this made for support IE browser (could be default value of the function)
+    	if (symbol === undefined) {
+    		symbol = "";
+        }
+        // if it is X or O
+    	if (symbol !== "") {
+    		// if game finished
+			if (gameFinished) {
+				// all win conditions
+				if (allCellsArray[0] === symbol && allCellsArray[1] === symbol && allCellsArray[2] === symbol) {
+					setColor([0, 1, 2], "#e99894");
+				}
+				else if (allCellsArray[3] === symbol && allCellsArray[4] === symbol && allCellsArray[5] === symbol) {
+					setColor([3, 4, 5], "#e99894");
+				}
+				else if (allCellsArray[6] === symbol && allCellsArray[7] === symbol && allCellsArray[8] === symbol) {
+					setColor([6, 7, 8], "#e99894");
+				}
+				else if (allCellsArray[0] === symbol && allCellsArray[3] === symbol && allCellsArray[6] === symbol) {
+					setColor([0, 3, 6], "#e99894");
+				}
+				else if (allCellsArray[1] === symbol && allCellsArray[4] === symbol && allCellsArray[7] === symbol) {
+					setColor([1, 4, 7], "#e99894");
+				}
+				else if (allCellsArray[2] === symbol && allCellsArray[5] === symbol && allCellsArray[8] === symbol) {
+					setColor([2, 5, 8], "#e99894");
+				}
+				else if (allCellsArray[0] === symbol && allCellsArray[4] === symbol && allCellsArray[8] === symbol) {
+					setColor([0, 4, 8], "#e99894");
+				}
+				else if (allCellsArray[2] === symbol && allCellsArray[4] === symbol && allCellsArray[6] === symbol) {
+					setColor([2, 4, 6], "#e99894");
+				}
+			}
+        }
+        // if game is nod finished reset colour
+		if (!gameFinished) {
+			setColor([0, 1, 2, 3, 4, 5, 6, 7, 8], "");
+		}
+    }
+    // function to set background colout of the DOM elements (by id)
+    function setColor(idsArray ,color) {
+    	for (let i = 0; i < idsArray.length; i++) {
+			document.getElementById(idsArray[i]).style.background = color;
+        }
+    }
+
+    // the main game function which defines the logic of the game
+    function nextStep(id) {
+    	// check if game is finished (to block steps after the win)
+        if (!gameFinished) {
+
+        	//first player is user
+            let userSymb = "X";
+            let computerSymb = "O";
+			let currentCell = getCellValue(id);
+            // first player is computer (check the condition of the tag)
+            if (firstPlayerComputer) {
+                userSymb = "O";
+                computerSymb = "X";
+            }
+
+            // if current cell is empty
+            if (currentCell === "") {
+            	//let user make a step
+                nextUserStep(id, userSymb);
+                // check if user wins after his step
+                checkWin(userSymb, "user");
+
+                // if the game is not finished after user step
+                if (!gameFinished) {
+                    // let computer make a step
+                    nextComputerStep(computerSymb);
+                    // check if computer wins after its step
+                    checkWin(computerSymb, "computer");
+                    // check if it is the draw of the game (after computer step)
+                    if(!gameFinished) {
+                        checkDraw();
+                    }
+                }
+            }
+        }
+    }
+</script>
+</body>
+</html>
